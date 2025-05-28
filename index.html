@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curso Interactivo de SVB: RCP Adultos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Fondo gris claro */
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 0.75rem; /* Bordes redondeados */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .button-primary {
+            background-color: #ef4444; /* Rojo vibrante */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+        .button-primary:hover {
+            background-color: #dc2626; /* Rojo más oscuro al pasar el mouse */
+        }
+        .button-secondary {
+            background-color: #4b5563; /* Gris oscuro */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+        .button-secondary:hover {
+            background-color: #1f2937; /* Gris más oscuro al pasar el mouse */
+        }
+        .feedback-box {
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin-top: 1rem;
+            font-weight: 600;
+        }
+        .feedback-success {
+            background-color: #d1fae5; /* Verde claro */
+            color: #065f46; /* Verde oscuro */
+        }
+        .feedback-warning {
+            background-color: #fef3c7; /* Amarillo claro */
+            color: #92400e; /* Naranja oscuro */
+        }
+        .feedback-error {
+            background-color: #fee2e2; /* Rojo claro */
+            color: #991b1b; /* Rojo oscuro */
+        }
+        /* Estilos para el simulador de compresiones */
+        #compressionSimulator {
+            width: 100%;
+            height: 150px;
+            background-color: #e2e8f0;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #64748b;
+            cursor: default;
+            user-select: none;
+            transition: background-color 0.1s ease;
+            text-align: center;
+            padding: 1rem;
+            position: relative; /* Necesario para posicionar #depthIndicator y #rhythmGuide */
+            overflow: hidden; /* Oculta la parte de la barra de profundidad que sobresale */
+        }
+        #compressionSimulator.active {
+            background-color: #cbd5e1;
+        }
+        #depthIndicator {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 0%; /* Altura inicial 0 */
+            background-color: #3b82f6; /* Color por defecto de la barra de profundidad */
+            transition: height 0.1s ease-out, background-color 0.1s ease; /* Transición suave */
+            border-radius: 0.75rem; /* Bordes redondeados para la barra interna */
+        }
+        #depthIndicator.deep { background-color: #22c55e; } /* Verde para profundo */
+        #depthIndicator.shallow { background-color: #facc15; } /* Amarillo para superficial */
+
+        #rhythmGuide {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            opacity: 0;
+            transition: all 0.1s ease-out;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+        #rhythmGuide.pulse {
+            animation: pulse 0.6s infinite cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.5; }
+            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.5; }
+        }
+
+
+        #compressionFeedback {
+            min-height: 3rem;
+        }
+        #permissionButton {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        #permissionButton:hover {
+            background-color: #2563eb;
+        }
+        #startSimulationButton {
+            background-color: #22c55e;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+            margin-top: 1rem;
+        }
+        #startSimulationButton:hover {
+            background-color: #16a34a;
+        }
+        #compressionImage {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.75rem;
+            margin-top: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        /* Estilos para la barra de semáforo */
+        #trafficLightBar {
+            width: 100%;
+            height: 20px;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+            transition: background-color 0.3s ease;
+        }
+        .bg-green-light { background-color: #86efac; } /* Verde claro para el semáforo */
+        .bg-yellow-light { background-color: #fde047; } /* Amarillo claro para el semáforo */
+        .bg-red-light { background-color: #fca5a5; } /* Rojo claro para el semáforo */
+
+        /* Estilos para el modal de resumen */
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: auto;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+        }
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            color: #aaa;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .diploma-content {
+            padding: 1rem;
+            border: 2px solid #ef4444;
+            border-radius: 0.5rem;
+            margin-top: 1.5rem;
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="bg-red-600 text-white py-6 shadow-md rounded-b-lg">
+        <div class="container text-center">
+            <h1 class="text-4xl font-bold mb-2">Curso Interactivo de Soporte Vital Básico</h1>
+            <p class="text-xl">Módulo 3: RCP en Adultos - Dominando la Técnica</p>
+        </div>
+    </header>
+
+    <main class="container py-8">
+
+        <section id="intro" class="card">
+            <h2 class="text-2xl font-bold text-red-700 mb-4">¡Bienvenidos al Módulo 3: RCP en Adultos!</h2>
+            <p class="mb-4">En este módulo, aprenderás los pilares de la Reanimación Cardiopulmonar (RCP) de alta calidad para adultos. Dominarás las técnicas de compresiones torácicas y ventilaciones de rescate, siguiendo los algoritmos más recientes de la American Health Association (AHA).</p>
+            <p class="mb-4">¡Prepárate para aplicar tus conocimientos en escenarios interactivos!</p>
+            <button onclick="showSection('compresiones')" class="button-primary">Comenzar Módulo</button>
+        </section>
+
+        <section id="compresiones" class="card hidden">
+            <h2 class="text-2xl font-bold text-red-700 mb-4">3.1 Compresiones Torácicas de Alta Calidad: El Corazón de la RCP</h2>
+            <p class="mb-4">Las compresiones torácicas son el componente más crítico de la RCP. Su objetivo es bombear sangre oxigenada al cerebro y al corazón, manteniendo vivos los órganos vitales hasta que llegue la ayuda avanzada. Deben ser **fuertes y rápidas**, permitiendo una descompresión completa del pecho.</p>
+
+            <div class="mb-6">
+                <h3 class="text-xl font-semibold mb-2">Video Demostrativo:</h3>
+                <div class="relative w-full" style="padding-top: 56.25%;">
+                    <iframe class="absolute top-0 left-0 w-full h-full rounded-lg" src="https://www.youtube.com/embed/dQw4w9WgXcQ?si=abcdefg" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+                <p class="text-sm text-gray-600 mt-2"><em>(Video: Demostración de Compresiones Torácicas de Alta Calidad en Adultos - Reemplaza con tu video real)</em></p>
+            </div>
+
+            <h3 class="text-xl font-semibold mb-2">Puntos Clave:</h3>
+            <ul class="list-disc list-inside mb-6 space-y-2">
+                <li>**Profundidad:** Al menos 5 cm (2 pulgadas). Piensa en **"hundir el pecho como si quisieras presionar un resorte fuerte"**.</li>
+                <li>**Frecuencia:** Entre 100 y 120 compresiones por minuto. ¡Imaginate el ritmo de la canción "Stayin' Alive" de los Bee Gees!</li>
+                <li>**Descompresión:** Permite que el pecho se expanda completamente después de cada compresión. ¡Es vital para que el corazón se llene de sangre!</li>
+                <li>**Interrupciones Mínimas:** Reduce al máximo el tiempo sin compresiones.</li>
+            </ul>
+            <button onclick="showSection('simulador_compresiones')" class="button-primary">Ir al Simulador de Compresiones</button>
+        </section>
+
+        <section id="simulador_compresiones" class="card hidden">
+            <h2 class="text-2xl font-bold text-red-700 mb-4">3.2 Practicando las Compresiones: ¡Tu Ritmo Salva Vidas!</h2>
+            <p class="mb-4">Para simular las compresiones, **sostén tu teléfono firmemente y realiza un movimiento de "empuje" hacia abajo** como si estuvieras comprimiendo un pecho. Intenta mantener una frecuencia de 100-120 compresiones por minuto y una "profundidad" constante. La simulación durará **1 minuto**.</p>
+            <p class="text-sm text-gray-600 mb-4">Abre la consola del navegador (F12 en PC o herramientas de depuración móvil) para ver los valores de aceleración y ayudarte a calibrar los umbrales. **¡Es clave para que funcione bien en tu dispositivo!**</p>
+
+            <button id="permissionButton" class="button-primary mb-4">Habilitar Sensores de Movimiento (Necesario para iOS)</button>
+            <button id="startSimulationButton" class="button-primary mb-4 hidden">Iniciar Simulación (1 Minuto)</button>
+
+            <div id="compressionSimulator" class="p-8 text-center bg-blue-100 border-2 border-blue-300 transition-colors duration-200 relative">
+                <div id="rhythmGuide" class="rounded-full bg-white opacity-0"></div>
+                Pulsa "Iniciar Simulación" para comenzar a practicar.
+                <div id="depthIndicator" class="absolute bottom-0 left-0 w-full bg-blue-500 transition-all duration-50" style="height: 0%;"></div>
+            </div>
+            <div id="trafficLightBar" class="rounded-lg mt-4"></div> <div id="compressionFeedback" class="feedback-box mt-4 text-center"></div>
+            
+            <div class="mt-4 flex justify-between items-center">
+                <span class="text-lg font-semibold">Compresiones realizadas: <span id="compressionCounterDisplay">0</span></span>
+                <span class="text-lg font-semibold">Compresiones por minuto: <span id="cpmDisplay">0</span></span>
+                <span class="text-lg font-semibold">Tiempo restante: <span id="timerDisplay">60</span>s</span>
+            </div>
+            
+            <img id="compressionImage" src="https://placehold.co/600x400/FF5733/FFFFFF?text=Imagen+de+Compresion+RCP" alt="Imagen de Compresión RCP" class="mx-auto mt-4 rounded-lg shadow-md">
+
+            <div class="mt-6 flex justify-end space-x-4">
+                <button onclick="showSection('compresiones')" class="button-secondary">Volver</button>
+                <button onclick="showSection('cuestionario_rcp')" class="button-primary">Ir al Cuestionario</button>
+            </div>
+        </section>
+
+        <section id="cuestionario_rcp" class="card hidden">
+            <h2 class="text-2xl font-bold text-red-700 mb-4">Cuestionario del Módulo 3: Aplicación de RCP en Adultos</h2>
+            <p class="mb-6">Lee el siguiente escenario y responde las preguntas. ¡Demuestra lo que has aprendido!</p>
+
+            <div class="bg-gray-100 p-4 rounded-lg mb-6">
+                <p class="font-semibold text-lg mb-2">Escenario:</p>
+                <p>Estás en un centro comercial y ves a un adulto colapsar repentinamente. Parece inconsciente y no responde a tu llamado. Después de asegurar la escena, te acercas y determinas que no respira normalmente y no tiene pulso.</p>
+            </div>
+
+            <div class="mb-6">
+                <p class="font-semibold text-lg mb-3">1. ¿Cuál sería tu primera acción inmediata después de confirmar la ausencia de pulso y respiración en este adulto?</p>
+                <div class="space-y-2">
+                    <label class="block">
+                        <input type="radio" name="q1" value="a" class="mr-2"> a) Buscar un DEA.
+                    </label>
+                    <label class="block">
+                        <input type="radio" name="q1" value="b" class="mr-2"> b) Abrir la vía aérea y dar dos ventilaciones.
+                    </label>
+                    <label class="block">
+                        <input type="radio" name="q1" value="c" class="mr-2"> c) Iniciar compresiones torácicas.
+                    </label>
+                    <label class="block">
+                        <input type="radio" name="q1" value="d" class="mr-2"> d) Llamar a los servicios de emergencia (911/107).
+                    </label>
+                </div>
+                <div id="feedbackQ1" class="feedback-box mt-2"></div>
+            </div>
+
+            <div class="mb-6">
+                <p class="font-semibold text-lg mb-3">2. Mientras realizas las compresiones, ¿cuál es la frecuencia ideal que debes mantener?</p>
+                <div class="space-y-2">
+                    <label class="block">
+                        <input type="radio" name="q2" value="a" class="mr-2"> a) 60-80 compresiones por minuto.
+                    </label>
+                    <label class="block">
+                        <input type="radio" name="q2" value="b" class="mr-2"> b) 100-120 compresiones por minuto.
+                    </label>
+                    <label class="block">
+                        <input type="radio" name="q2" value="c" class="mr-2"> c) Más de 120 compresiones por minuto.
+                    </label>
+                    <label class="block">
+                        <input type="radio" name="q2" value="d" class="mr-2"> d) Menos de 60 compresiones por minuto.
+                    </label>
+                </div>
+                <div id="feedbackQ2" class="feedback-box mt-2"></div>
+            </div>
+
+            <div class="flex justify-end space-x-4">
+                <button onclick="checkQuiz()" class="button-primary">Enviar Respuestas</button>
+                <button onclick="showSection('simulador_compresiones')" class="button-secondary">Volver al Simulador</button>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="summaryModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeSummaryModal()">&times;</span>
+            <h3 class="text-2xl font-bold text-red-700 mb-4">Resultados de la Simulación</h3>
+            <p class="text-lg mb-2">Puntuación Total: <span id="finalScoreDisplay" class="font-bold">0</span></p>
+            <p class="text-lg mb-2">Compresiones realizadas: <span id="finalCompressionCount" class="font-bold">0</span></p>
+            <p class="text-lg mb-2">Ritmo promedio: <span id="finalCpmDisplay" class="font-bold">0</span> CPM</p>
+            <p class="text-lg mb-4">Compresiones profundas: <span id="finalDeepPercentage" class="font-bold">0%</span></p>
+            <p id="finalRecommendation" class="text-md mb-4"></p>
+
+            <h4 class="text-xl font-semibold mb-2">Generar Diploma</h4>
+            <input type="text" id="participantName" placeholder="Tu nombre para el diploma" class="w-full p-2 border border-gray-300 rounded-md mb-4">
+            <button onclick="generateDiploma()" class="button-primary w-full">Generar Diploma</button>
+            
+            <div id="diplomaPreview" class="diploma-content hidden mt-4">
+                <h3 class="text-xl font-bold text-red-700 mb-2">Certificado de Participación</h3>
+                <p class="text-md mb-1">Este certificado es otorgado a:</p>
+                <p class="text-2xl font-bold mb-2" id="diplomaName"></p>
+                <p class="text-md mb-1">Por completar la simulación de RCP con una puntuación de:</p>
+                <p class="text-3xl font-bold text-green-700 mb-2" id="diplomaScore"></p>
+                <p class="text-sm text-gray-600" id="diplomaDate"></p>
+                <p class="text-xs mt-4">¡Tu dedicación salva vidas!</p>
+            </div>
+            <button onclick="closeSummaryModal()" class="button-secondary mt-4">Cerrar</button>
+        </div>
+    </div>
+
+    <footer class="bg-gray-800 text-white py-4 text-center rounded-t-lg mt-8">
+        <p>© 2025 Curso de SVB. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        // Función para mostrar/ocultar secciones
+        function showSection(id) {
+            document.querySelectorAll('section').forEach(section => {
+                section.classList.add('hidden');
+            });
+            document.getElementById(id).classList.remove('hidden');
+            // Si la sección del simulador se muestra, prepara los botones
+            if (id === 'simulador_compresiones') {
+                resetSimulation(); // Reiniciar el simulador al mostrar la sección
+                if (typeof DeviceMotionEvent.requestPermission === 'function') {
+                    // Solo iOS necesita el botón de permiso y luego mostrar el de inicio
+                    document.getElementById('permissionButton').style.display = 'block';
+                    document.getElementById('startSimulationButton').style.display = 'none'; // Oculto hasta que se dé permiso
+                } else {
+                    // Android y otros navegadores que no necesitan permiso explícito
+                    document.getElementById('permissionButton').style.display = 'none';
+                    document.getElementById('startSimulationButton').style.display = 'block'; // Mostrar botón de inicio directamente
+                    sensorsEnabled = true; // Asumir que los sensores están disponibles
+                    simulator.textContent = 'Pulsa "Iniciar Simulación" para comenzar a practicar.';
+                }
+            }
+        }
+
+        // --- Lógica del Simulador de Compresiones con Sensor de Movimiento ---
+        let compressionCount = 0;
+        let deepCompressionsCount = 0;
+        let optimalRhythmCompressionsCount = 0;
+        let totalCompressionsAttempted = 0; // Contará cada vez que se detecte un movimiento por encima del umbral
+        let score = 0;
+
+        let timer = 60; // segundos (ampliado a 1 minuto)
+        let intervalId;
+        let cpmIntervalId;
+        let bipIntervalId; // ID para el sonido "bip"
+        let lastCompressionTime = 0; // Tiempo del último "push" detectado
+        let compressionTimes = []; // Para calcular CPM
+        let audioContext; // Contexto de audio para los bips
+        let isLastCompressionDeep = false; // Estado de la profundidad de la última compresión
+
+        // --- VALORES CRÍTICOS PARA LA DETECCIÓN ---
+        // **COMPRESSION_THRESHOLD:** Mínima aceleración para contar una "compresión".
+        //   - Si no detecta nada: Reducí este valor (ej. 5, 4, 3)
+        //   - Si detecta con movimientos muy pequeños: Aumentá este valor (ej. 10, 12, 15)
+        // **DEPTH_THRESHOLD:** Mínima aceleración para considerar una compresión "profunda".
+        //   - Debe ser mayor que COMPRESSION_THRESHOLD.
+        //   - Ajustalo para que coincida con un "empuje" más fuerte.
+        const COMPRESSION_THRESHOLD = 8; // Experimenta con 5 a 15
+        const DEPTH_THRESHOLD = 12;      // Experimenta con 8 a 20 (siempre > COMPRESSION_THRESHOLD)
+
+        const simulator = document.getElementById('compressionSimulator');
+        const cpmDisplay = document.getElementById('cpmDisplay');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const compressionFeedback = document.getElementById('compressionFeedback');
+        const permissionButton = document.getElementById('permissionButton');
+        const startSimulationButton = document.getElementById('startSimulationButton');
+        const compressionCounterDisplay = document.getElementById('compressionCounterDisplay');
+        const trafficLightBar = document.getElementById('trafficLightBar');
+        const depthIndicator = document.getElementById('depthIndicator'); // Nueva referencia
+        const rhythmGuide = document.getElementById('rhythmGuide'); // Nueva referencia para el metrónomo visual
+
+        const summaryModal = document.getElementById('summaryModal');
+        const finalScoreDisplay = document.getElementById('finalScoreDisplay');
+        const finalCompressionCount = document.getElementById('finalCompressionCount');
+        const finalCpmDisplay = document.getElementById('finalCpmDisplay');
+        const finalDeepPercentage = document.getElementById('finalDeepPercentage');
+        const finalRecommendation = document.getElementById('finalRecommendation');
+        const participantNameInput = document.getElementById('participantName');
+        const diplomaPreview = document.getElementById('diplomaPreview');
+        const diplomaName = document.getElementById('diplomaName');
+        const diplomaScore = document.getElementById('diplomaScore');
+        const diplomaDate = document.getElementById('diplomaDate');
+
+
+        let sensorsEnabled = false; // Estado de los sensores
+        let simulationActive = false; // Controla si la simulación está en curso
+
+        // Asigna el evento al botón de inicio de simulación
+        startSimulationButton.addEventListener('click', startSimulation);
+
+        // Función para solicitar permisos (especialmente para iOS 13+)
+        if (typeof DeviceMotionEvent.requestPermission === 'function') {
+            permissionButton.addEventListener('click', () => {
+                DeviceMotionEvent.requestPermission()
+                    .then(permissionState => {
+                        if (permissionState === 'granted') {
+                            sensorsEnabled = true;
+                            permissionButton.style.display = 'none'; // Ocultar botón de permiso
+                            startSimulationButton.style.display = 'block'; // Mostrar botón de inicio
+                            simulator.textContent = '¡Sensores habilitados! Pulsa "Iniciar Simulación" para comenzar a practicar.';
+                            // Inicializar AudioContext después de la interacción del usuario
+                            if (!audioContext) {
+                                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                            }
+                        } else {
+                            simulator.textContent = 'Permiso denegado. No se pueden usar los sensores.';
+                        }
+                    })
+                    .catch(console.error);
+            });
+        } else {
+            // Para Android o navegadores que no requieren permiso explícito
+            permissionButton.style.display = 'none';
+            sensorsEnabled = true; // Asumir que los sensores están disponibles
+            simulator.textContent = 'Pulsa "Iniciar Simulación" para comenzar a practicar.';
+            // Inicializar AudioContext si no se necesita permiso de movimiento
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // --- Funciones de Audio ---
+        function playBipSound() {
+            if (!audioContext) return;
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.1);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        function playDeepSound() {
+            if (!audioContext) return;
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.type = 'triangle'; // Un sonido más "sólido"
+            oscillator.frequency.setValueAtTime(600, audioContext.currentTime); // Frecuencia más alta
+            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.08);
+            oscillator.stop(audioContext.currentTime + 0.08);
+        }
+
+        function playShallowSound() {
+            if (!audioContext) return;
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            oscillator.type = 'sawtooth'; // Un sonido más "suave" o "vacío"
+            oscillator.frequency.setValueAtTime(200, audioContext.currentTime); // Frecuencia más baja
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.08);
+            oscillator.stop(audioContext.currentTime + 0.08);
+        }
+
+        // --- Funciones de Control de Simulación ---
+        function resetSimulation() {
+            // Detener cualquier simulación activa
+            clearInterval(intervalId);
+            clearInterval(cpmIntervalId);
+            clearInterval(bipIntervalId);
+            window.removeEventListener('devicemotion', handleDeviceMotion);
+            rhythmGuide.classList.remove('pulse'); // Detener animación del metrónomo
+
+            // Resetear variables
+            compressionCount = 0;
+            deepCompressionsCount = 0;
+            optimalRhythmCompressionsCount = 0;
+            totalCompressionsAttempted = 0;
+            score = 0;
+            timer = 60;
+            compressionTimes = [];
+            lastCompressionTime = 0;
+            simulationActive = false;
+            isLastCompressionDeep = false;
+            
+            // Resetear display
+            compressionCounterDisplay.textContent = '0';
+            cpmDisplay.textContent = '0';
+            timerDisplay.textContent = '60';
+            compressionFeedback.className = 'feedback-box mt-4 text-center';
+            compressionFeedback.textContent = '';
+            simulator.style.backgroundColor = '#e2e8f0'; // Color por defecto
+            trafficLightBar.className = 'rounded-lg mt-4'; // Resetear color de la barra
+            depthIndicator.style.height = '0%'; // Resetear barra de profundidad
+            depthIndicator.className = 'absolute bottom-0 left-0 w-full transition-all duration-50'; // Resetear clases de color
+            
+            // Asegurar que el botón de inicio esté visible si los sensores están habilitados
+            if (sensorsEnabled) {
+                startSimulationButton.style.display = 'block';
+                simulator.textContent = 'Pulsa "Iniciar Simulación" para comenzar a practicar.';
+            } else {
+                simulator.textContent = 'Mueve tu teléfono para simular compresiones.'; // Mensaje si no se han habilitado aún
+            }
+
+            // Ocultar modal de resumen
+            summaryModal.classList.add('hidden');
+            diplomaPreview.classList.add('hidden');
+        }
+
+        function startSimulation() {
+            if (!sensorsEnabled) {
+                compressionFeedback.className = 'feedback-box mt-4 text-center feedback-error';
+                compressionFeedback.textContent = 'Error: Los sensores de movimiento no están habilitados o disponibles. Pulsa "Habilitar Sensores" si aparece.';
+                return;
+            }
+            if (simulationActive) return; // Evitar iniciar múltiples simulaciones
+
+            resetSimulation(); // Asegurarse de resetear antes de iniciar
+            simulationActive = true;
+            startSimulationButton.style.display = 'none'; // Ocultar botón de inicio durante la simulación
+            simulator.textContent = '¡Empieza a simular compresiones! Mantén el ritmo.';
+            rhythmGuide.classList.add('pulse'); // Iniciar animación del metrónomo
+
+            // Iniciar temporizador
+            intervalId = setInterval(() => {
+                timer--;
+                timerDisplay.textContent = timer;
+                if (timer <= 0) {
+                    clearInterval(intervalId);
+                    clearInterval(cpmIntervalId);
+                    clearInterval(bipIntervalId); // Detener bips al finalizar
+                    endSimulation();
+                    window.removeEventListener('devicemotion', handleDeviceMotion); // Detener el listener
+                }
+            }, 1000);
+
+            // Iniciar cálculo de CPM y bips guía
+            cpmIntervalId = setInterval(updateCpmDisplay, 1000);
+            bipIntervalId = setInterval(playBipSound, 600); // Bip cada 0.6 segundos = 100 bips/min
+            
+            window.addEventListener('devicemotion', handleDeviceMotion);
+        }
+
+        function handleDeviceMotion(event) {
+            if (!simulationActive) return; // Asegurarse de que la simulación esté activa
+
+            // event.accelerationIncludingGravity te da la aceleración incluyendo la gravedad.
+            const accelerationX = event.accelerationIncludingGravity.x;
+            const accelerationY = event.accelerationIncludingGravity.y;
+            const accelerationZ = event.accelerationIncludingGravity.z;
+
+            // Para depuración: Muestra los valores en la consola. ¡Usa esto para calibrar!
+            console.log(`Acc X: ${accelerationX.toFixed(2)}, Acc Y: ${accelerationY.toFixed(2)}, Acc Z: ${accelerationZ.toFixed(2)}`);
+
+            // Calcular la magnitud de la aceleración total (vector)
+            const magnitude = Math.sqrt(
+                accelerationX * accelerationX +
+                accelerationY * accelerationY +
+                accelerationZ * accelerationZ
+            );
+
+            // Detectar un "pico" de aceleración para una compresión
+            if (magnitude > COMPRESSION_THRESHOLD) {
+                const currentTime = Date.now();
+                if (currentTime - lastCompressionTime > 350) { // Debounce de 350ms
+                    totalCompressionsAttempted++; // Contar cada intento de compresión
+                    compressionCount++;
+                    compressionTimes.push(currentTime);
+                    lastCompressionTime = currentTime;
+                    compressionCounterDisplay.textContent = compressionCount; // Actualizar contador
+
+                    // Determinar feedback de profundidad inmediatamente
+                    if (magnitude > DEPTH_THRESHOLD) {
+                        isLastCompressionDeep = true;
+                        deepCompressionsCount++; // Contar compresiones profundas
+                        depthIndicator.className = 'absolute bottom-0 left-0 w-full transition-all duration-50 deep'; // Clase para verde
+                        playDeepSound(); // Sonido de compresión profunda
+                        score += 10; // Puntos por compresión profunda
+                    } else {
+                        isLastCompressionDeep = false;
+                        depthIndicator.className = 'absolute bottom-0 left-0 w-full transition-all duration-50 shallow'; // Clase para amarillo
+                        playShallowSound(); // Sonido de compresión superficial
+                        score += 5; // Menos puntos por compresión superficial
+                    }
+                    
+                    // Actualizar altura de la barra de profundidad (normalizada a un máximo visual)
+                    const normalizedHeight = Math.min(magnitude / (DEPTH_THRESHOLD * 1.5), 1); // Normalizar a un máximo de 1.5x el umbral de profundidad
+                    depthIndicator.style.height = `${normalizedHeight * 100}%`;
+
+                    // Restablecer la barra de profundidad después de un breve momento
+                    setTimeout(() => {
+                        depthIndicator.style.height = '0%'; // Volver a 0
+                        depthIndicator.className = 'absolute bottom-0 left-0 w-full transition-all duration-50'; // Limpiar clases de color
+                    }, 200);
+                }
+            }
+        }
+
+        function updateCpmDisplay() {
+            const now = Date.now();
+            // Filtrar compresiones que estén dentro del último minuto (60 segundos)
+            const relevantCompressions = compressionTimes.filter(time => time > now - 60000);
+            
+            // Calcular CPM en base al tiempo transcurrido o 60 segundos si ya pasó el minuto
+            const elapsedTime = (60 - timer) > 0 ? (60 - timer) : 1; 
+            const currentCpm = (relevantCompressions.length / elapsedTime) * 60;
+            
+            cpmDisplay.textContent = Math.round(currentCpm);
+
+            // --- Lógica del Semáforo y Feedback de Texto ---
+            let feedbackMessage = '';
+            let feedbackClass = 'feedback-box mt-4 text-center';
+            let trafficLightColorClass = '';
+
+            if (!simulationActive || timer >= 60) { // Antes de iniciar o al inicio
+                feedbackMessage = '';
+                feedbackClass = 'feedback-box mt-4 text-center';
+                trafficLightColorClass = ''; // Sin color
+            } else if (currentCpm === 0 && timer < 60 && compressionCount === 0) { // No se detectan compresiones al inicio
+                feedbackMessage = 'No se detectan compresiones. ¡Empieza a comprimir!';
+                feedbackClass += ' feedback-error';
+                trafficLightColorClass = 'bg-red-light';
+            } else if (currentCpm > 120) {
+                feedbackMessage = '¡Demasiado rápido! Reduce la frecuencia.';
+                feedbackClass += ' feedback-error';
+                trafficLightColorClass = 'bg-red-light';
+                score = Math.max(0, score - 2); // Penalización por ritmo muy rápido
+            } else if (currentCpm < 100) {
+                feedbackMessage = '¡Más rápido! Aumenta la frecuencia.';
+                feedbackClass += ' feedback-warning';
+                trafficLightColorClass = 'bg-yellow-light';
+                score = Math.max(0, score - 1); // Penalización leve por ritmo lento
+            } else { // Ritmo entre 100-120 CPM (Óptimo)
+                optimalRhythmCompressionsCount++; // Contar compresiones con ritmo óptimo
+                if (isLastCompressionDeep) { // Si la última compresión fue profunda
+                    feedbackMessage = '¡Ritmo y Profundidad Óptimos!';
+                    feedbackClass += ' feedback-success';
+                    trafficLightColorClass = 'bg-green-light';
+                    // Puntos por consistencia o ritmo óptimo ya se dan en handleDeviceMotion
+                } else { // Ritmo óptimo, pero profundidad superficial
+                    feedbackMessage = '¡Ritmo óptimo, pero más profundo!';
+                    feedbackClass += ' feedback-warning';
+                    trafficLightColorClass = 'bg-yellow-light';
+                }
+            }
+            
+            compressionFeedback.className = feedbackClass;
+            compressionFeedback.textContent = feedbackMessage;
+            trafficLightBar.className = `rounded-lg mt-4 ${trafficLightColorClass}`;
+        }
+
+        function endSimulation() {
+            simulationActive = false; // Detener la simulación
+            startSimulationButton.style.display = 'block'; // Mostrar el botón para iniciar otra vez
+            simulator.textContent = 'Simulación Finalizada. Pulsa "Iniciar Simulación" para practicar de nuevo.';
+            rhythmGuide.classList.remove('pulse'); // Detener animación del metrónomo
+
+
+            clearInterval(intervalId);
+            clearInterval(cpmIntervalId);
+            clearInterval(bipIntervalId); // Detener bips al finalizar
+            window.removeEventListener('devicemotion', handleDeviceMotion); // Detener el listener del giroscopio
+
+            const finalCpm = (compressionCount / 60) * 60; // Compresiones en 60 segundos
+            const deepPercentage = compressionCount > 0 ? ((deepCompressionsCount / compressionCount) * 100).toFixed(0) : 0;
+            const optimalRhythmPercentage = compressionCount > 0 ? ((optimalRhythmCompressionsCount / compressionCount) * 100).toFixed(0) : 0;
+
+            // Mostrar Modal de Resumen
+            finalScoreDisplay.textContent = score;
+            finalCompressionCount.textContent = compressionCount;
+            finalCpmDisplay.textContent = Math.round(finalCpm);
+            finalDeepPercentage.textContent = `${deepPercentage}%`;
+
+            let recommendationText = '';
+            if (finalCpm < 100) {
+                recommendationText += 'Necesitas aumentar tu frecuencia de compresiones. ';
+            } else if (finalCpm > 120) {
+                recommendationText += 'Tu frecuencia es demasiado alta, intenta reducirla. ';
+            } else {
+                recommendationText += 'Tu ritmo de compresiones es excelente. ';
+            }
+
+            if (deepPercentage < 70) { // Si menos del 70% fueron profundas
+                recommendationText += 'Intenta comprimir con más fuerza para alcanzar la profundidad adecuada.';
+            } else {
+                recommendationText += '¡Tu profundidad de compresiones es muy buena!';
+            }
+            finalRecommendation.textContent = recommendationText;
+            
+            summaryModal.classList.remove('hidden');
+        }
+
+        function closeSummaryModal() {
+            summaryModal.classList.add('hidden');
+            diplomaPreview.classList.add('hidden'); // Ocultar diploma también
+            participantNameInput.value = ''; // Limpiar el nombre
+        }
+
+        function generateDiploma() {
+            const name = participantNameInput.value.trim();
+            if (name === '') {
+                // Usar una alerta interna o un mensaje en la UI en lugar de alert()
+                compressionFeedback.className = 'feedback-box mt-4 text-center feedback-warning';
+                compressionFeedback.textContent = 'Por favor, ingresa tu nombre para el diploma.';
+                setTimeout(() => {
+                    compressionFeedback.textContent = '';
+                    compressionFeedback.className = 'feedback-box mt-4 text-center';
+                }, 3000);
+                return;
+            }
+
+            diplomaName.textContent = name;
+            diplomaScore.textContent = score;
+            diplomaDate.textContent = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+            diplomaPreview.classList.remove('hidden');
+        }
+
+
+        // --- Lógica del Cuestionario ---
+        function checkQuiz() {
+            const q1Answer = document.querySelector('input[name="q1"]:checked');
+            const q2Answer = document.querySelector('input[name="q2"]:checked');
+
+            const feedbackQ1 = document.getElementById('feedbackQ1');
+            const feedbackQ2 = document.getElementById('feedbackQ2'); 
+
+            // Pregunta 1
+            if (q1Answer && q1Answer.value === 'c') {
+                feedbackQ1.className = 'feedback-box mt-2 feedback-success';
+                feedbackQ1.textContent = '¡Correcto! La AHA enfatiza el inicio temprano de las compresiones torácicas de alta calidad.';
+            } else {
+                feedbackQ1.className = 'feedback-box mt-2 feedback-error';
+                feedbackQ1.textContent = 'Incorrecto. La prioridad inmediata es iniciar las compresiones torácicas. Repasa la sección 3.1.';
+            }
+
+            // Pregunta 2
+            if (q2Answer && q2Answer.value === 'b') {
+                feedbackQ2.className = 'feedback-box mt-2 feedback-success';
+                feedbackQ2.textContent = '¡Correcto! La frecuencia ideal es entre 100 y 120 compresiones por minuto.';
+            } else {
+                feedbackQ2.className = 'feedback-box mt-2 feedback-error';
+                feedbackQ2.textContent = 'Incorrecto. La frecuencia ideal es 100-120 CPM. Repasa la sección 3.1.';
+            }
+        }
+
+        // Mostrar la sección de introducción al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            showSection('intro');
+        });
+    </script>
+</body>
+</html>
